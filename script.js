@@ -49,25 +49,49 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Form submission handling
-const contactForm = document.querySelector('.contact-form');
-if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Get form data
-        const formData = new FormData(this);
-        const formObject = {};
-        formData.forEach((value, key) => {
-            formObject[key] = value;
-        });
+// Initialize EmailJS with your public key
+(function() {
+    emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your actual EmailJS public key
+})();
 
-        // Here you would typically send the form data to a server
-        // For now, we'll just show a success message
-        alert('Thank you for your message! I will get back to you soon.');
-        this.reset();
-    });
-}
+// Handle form submission
+document.querySelector('.contact-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    // Show loading state
+    const submitButton = this.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    submitButton.textContent = 'Sending...';
+    submitButton.disabled = true;
+
+    // Get form data
+    const formData = {
+        name: this.querySelector('input[type="text"]').value,
+        email: this.querySelector('input[type="email"]').value,
+        message: this.querySelector('textarea').value,
+        to_email: 'ak5185911@gmail.com'
+    };
+
+    // Send email using EmailJS
+    emailjs.send('default_service', 'template_id', formData) // Replace with your service and template IDs
+        .then(function() {
+            // Show success message
+            alert('Message sent successfully!');
+            
+            // Reset form
+            document.querySelector('.contact-form').reset();
+        })
+        .catch(function(error) {
+            // Show error message
+            console.error('Error:', error);
+            alert('Failed to send message. Please try again.');
+        })
+        .finally(function() {
+            // Restore button state
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+        });
+});
 
 // Add animation on scroll
 const animateOnScroll = () => {
